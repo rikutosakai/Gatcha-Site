@@ -111,7 +111,7 @@ async function verifyProblem() {
     verifiedProblem = true;
     problemToken = result;
 
-    await loadProblemHtml();  // iframe の代わりに fetch で読み込む
+    await loadProblemHtml();  // トークン付き getProblem 呼び出し
 
     goToScreen2();
   } else {
@@ -124,10 +124,10 @@ verifyProblem();
 
 
 // ------------------------------
-// ③ 問題HTMLを fetch で読み込む（iframe を使わない）
+// ③ 問題HTMLを fetch で読み込む（トークン付き）
 // ------------------------------
 async function loadProblemHtml() {
-  const url = `${api}?mode=getProblem&id=${savedFormId}&pw=${savedFormPw}`;
+  const url = `${api}?mode=getProblem&tokenProblem=${problemToken}`;
   const res = await fetch(url);
   const html = await res.text();
   document.getElementById("problemArea").innerHTML = html;
