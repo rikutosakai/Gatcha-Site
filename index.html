@@ -1,39 +1,193 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ガチャ問題</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #f5f5f5;
-    }
-    iframe {
-      border: none;
-      width: 100%;
-      height: 100vh;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>ガチャ問題</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; }
+  .screen { display: none; }
+  .active { display: block; }
+  input { display: block; margin: 8px 0; padding: 8px; width: 100%; }
+  button { padding: 12px 20px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 6px; cursor: pointer; }
+  iframe { width: 100%; height: 600px; border: none; }
+</style>
 </head>
 <body>
+
+<!-- ① 問題認証画面 -->
+<div id="screen1" class="screen active">
+  <h2>問題認証中…</h2>
+  <p>QRコードの情報を読み込んでいます。</p>
+</div>
+
+<!-- ② 参加者認証画面 -->
+<div id="screen2" class="screen">
+  <h2>参加者認証</h2>
+
+  <label>参加者ID</label>
+  <input type="text" id="participantId">
+
+  <label>ニックネーム</label>
+  <input type="text" id="nickname">
+
+  <button onclick="verifyParticipant()">次へ</button>
+</div>
+
+<!-- ③ 問題閲覧画面 -->
+<div id="screen3" class="screen">
+  <h2>問題</h2>
   <iframe id="problemFrame"></iframe>
+  <button onclick="goToScreen4()">回答へ進む</button>
+</div>
 
-  <script>
-    const url = new URL(location.href);
+<!-- ④ 回答画面 -->
+<div id="screen4" class="screen">
+  <h2>回答入力</h2>
 
-    // QRコードに埋め込まれた Apps Script の URL
-    const api = url.searchParams.get("api");
+  <h3>問題 1</h3>
+  <input type="text" id="q1_1" placeholder="回答1">
+  <input type="text" id="q1_2" placeholder="回答2">
+  <input type="text" id="q1_3" placeholder="回答3">
+  <input type="text" id="q1_4" placeholder="回答4">
+  <input type="text" id="q1_5" placeholder="回答5">
+  <input type="text" id="q1_6" placeholder="回答6">
 
-    // id と pw をそのまま引き継ぐ
-    const id = url.searchParams.get("id");
-    const pw = url.searchParams.get("pw");
+  <h3>問題 2</h3>
+  <input type="text" id="q2_1" placeholder="回答1">
+  <input type="text" id="q2_2" placeholder="回答2">
+  <input type="text" id="q2_3" placeholder="回答3">
+  <input type="text" id="q2_4" placeholder="回答4">
+  <input type="text" id="q2_5" placeholder="回答5">
+  <input type="text" id="q2_6" placeholder="回答6">
 
-    // Apps Script に渡すURLを生成
-    const apiUrl = `${api}?id=${id}&pw=${pw}`;
+  <button onclick="submitAnswers()">回答を送信する</button>
+</div>
 
-    // iframe に読み込む（警告ヘッダーが完全に消える）
-    document.getElementById("problemFrame").src = apiUrl;
-  </script>
+<script>
+// ------------------------------
+// 認証状態と認証情報の保持
+// ------------------------------
+let verifiedProblem = false;
+let verifiedParticipant = false;
+
+let savedFormId = null;
+let savedFormPw = null;
+let savedParticipantId = null;
+let savedNickname = null;
+
+let problemToken = null;
+let participantToken = null;
+
+
+// ------------------------------
+// 画面遷移
+// ------------------------------
+function showScreen(n) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  document.getElementById("screen" + n).classList.add("active");
+}
+function goToScreen2() { showScreen(2); }
+function goToScreen3() { showScreen(3); }
+function goToScreen4() { showScreen(4); }
+
+
+// ------------------------------
+// ① QRコード情報の読み込み → 問題認証
+// ------------------------------
+const url = new URL(location.href);
+const api = url.searchParams.get("api");
+const id  = url.searchParams.get("id");
+const pw  = url.searchParams.get("pw");
+
+savedFormId = id;
+savedFormPw = pw;
+
+async function verifyProblem() {
+  const verifyUrl = `${api}?mode=verifyProblem&id=${id}&pw=${pw}`;
+  const res = await fetch(verifyUrl);
+  const result = await res.text();
+
+  if (result.startsWith("TOKEN_")) {
+    verifiedProblem = true;
+    problemToken = result;
+
+    // 問題画像を読み込む
+    const problemUrl = `${api}?mode=getProblem&id=${id}&pw=${pw}`;
+    document.getElementById("problemFrame").src = problemUrl;
+
+    goToScreen2();
+  } else {
+    alert("問題認証に失敗しました");
+  }
+}
+
+// ページ読み込み時に問題認証を実行
+verifyProblem();
+
+
+// ------------------------------
+// ② 参加者認証
+// ------------------------------
+async function verifyParticipant() {
+  const pid = document.getElementById("participantId").value;
+  const nick = document.getElementById("nickname").value;
+
+  const verifyUrl = `${api}?mode=verifyParticipant&pid=${pid}&nick=${nick}`;
+  const res = await fetch(verifyUrl);
+  const result = await res.text();
+
+  if (result.startsWith("TOKEN_")) {
+    verifiedParticipant = true;
+    savedParticipantId = pid;
+    savedNickname = nick;
+    participantToken = result;
+
+    goToScreen3();
+  } else {
+    alert("参加者認証に失敗しました");
+  }
+}
+
+
+// ------------------------------
+// ③ 回答保存（Apps Script → Google Sheets）
+// ------------------------------
+async function submitAnswers() {
+  if (!verifiedProblem || !verifiedParticipant) {
+    alert("認証が完了していません");
+    return;
+  }
+
+  const url = `${api}?mode=saveAnswer`
+    + `&formId=${savedFormId}`
+    + `&formPw=${savedFormPw}`
+    + `&pid=${savedParticipantId}`
+    + `&nick=${savedNickname}`
+    + `&tokenProblem=${problemToken}`
+    + `&tokenParticipant=${participantToken}`
+    + `&q1_1=${document.getElementById("q1_1").value}`
+    + `&q1_2=${document.getElementById("q1_2").value}`
+    + `&q1_3=${document.getElementById("q1_3").value}`
+    + `&q1_4=${document.getElementById("q1_4").value}`
+    + `&q1_5=${document.getElementById("q1_5").value}`
+    + `&q1_6=${document.getElementById("q1_6").value}`
+    + `&q2_1=${document.getElementById("q2_1").value}`
+    + `&q2_2=${document.getElementById("q2_2").value}`
+    + `&q2_3=${document.getElementById("q2_3").value}`
+    + `&q2_4=${document.getElementById("q2_4").value}`
+    + `&q2_5=${document.getElementById("q2_5").value}`
+    + `&q2_6=${document.getElementById("q2_6").value}`;
+
+  const res = await fetch(url);
+  const result = await res.text();
+
+  if (result === "OK") {
+    alert("回答を保存しました！");
+  } else {
+    alert("回答保存に失敗しました");
+  }
+}
+</script>
+
 </body>
 </html>
