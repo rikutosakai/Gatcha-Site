@@ -133,14 +133,14 @@ verifyProblem();
 // ③ 問題HTMLを JSON で受信して表示
 // ------------------------------
 async function loadProblemHtml() {
-  const url = `${api}?mode=getProblem&tokenProblem=${encodeURIComponent(problemToken)}`;
-  const res = await fetch(url);
-  const data = await res.json();   // ← JSON に変更
+  const requestUrl = `${api}?mode=getProblem&tokenProblem=${encodeURIComponent(problemToken)}`;
+  const res = await fetch(requestUrl);
+  const data = await res.json();
 
   if (data.status === "OK") {
     document.getElementById("problemArea").innerHTML = data.html;
   } else {
-    document.getElementById("problemArea").innerHTML = "認証失敗";
+    throw new Error("問題データの取得に失敗しました");
   }
 }
 
@@ -152,19 +152,24 @@ async function verifyParticipant() {
   const pid = document.getElementById("participantId").value;
   const nick = document.getElementById("nickname").value;
 
-  const verifyUrl = `${api}?mode=verifyParticipant&pid=${pid}&nick=${nick}`;
-  const res = await fetch(verifyUrl);
-  const data = await res.json();   // ← JSON に変更
+  try {
+    const verifyUrl = `${api}?mode=verifyParticipant&pid=${encodeURIComponent(pid)}&nick=${encodeURIComponent(nick)}`;
+    const res = await fetch(verifyUrl);
+    const data = await res.json();
 
-  if (data.status === "OK") {
-    verifiedParticipant = true;
-    savedParticipantId = pid;
-    savedNickname = nick;
-    participantToken = data.token;
+    if (data.status === "OK") {
+      verifiedParticipant = true;
+      savedParticipantId = pid;
+      savedNickname = nick;
+      participantToken = data.token;
 
-    goToScreen3();
-  } else {
-    alert("参加者認証に失敗しました");
+      goToScreen3();
+    } else {
+      alert("参加者認証に失敗しました");
+    }
+  } catch (error) {
+    console.error("参加者認証 API エラー:", error);
+    alert("参加者認証サーバーとの通信に失敗しました");
   }
 }
 
@@ -178,33 +183,32 @@ async function submitAnswers() {
     return;
   }
 
-  const url = `${api}?mode=saveAnswer`
-    + `&formId=${savedFormId}`
-    + `&formPw=${savedFormPw}`
-    + `&pid=${savedParticipantId}`
-    + `&nick=${savedNickname}`
-    + `&tokenProblem=${encodeURIComponent(problemToken)}`
-    + `&tokenParticipant=${encodeURIComponent(participantToken)}`
-    + `&q1_1=${document.getElementById("q1_1").value}`
-    + `&q1_2=${document.getElementById("q1_2").value}`
-    + `&q1_3=${document.getElementById("q1_3").value}`
-    + `&q1_4=${document.getElementById("q1_4").value}`
-    + `&q1_5=${document.getElementById("q1_5").value}`
-    + `&q1_6=${document.getElementById("q1_6").value}`
-    + `&q2_1=${document.getElementById("q2_1").value}`
-    + `&q2_2=${document.getElementById("q2_2").value}`
-    + `&q2_3=${document.getElementById("q2_3").value}`
-    + `&q2_4=${document.getElementById("q2_4").value}`
-    + `&q2_5=${document.getElementById("q2_5").value}`
-    + `&q2_6=${document.getElementById("q2_6").value}`;
+  const params = new URLSearchParams({
+    mode: "saveAnswer",
+    formId: savedFormId,
+    formPw: savedFormPw,
+    pid: savedParticipantId,
+    nick: savedNickname,
+    tokenProblem: problemToken,
+    tokenParticipant: participantToken
+  });
 
-  const res = await fetch(url);
-  const data = await res.json();   // ← JSON に変更
+  for (const input of document.querySelectorAll("#screen4 input")) {
+    params.set(input.id, input.value);
+  }
 
-  if (data.status === "OK") {
-    alert("回答を保存しました！");
-  } else {
-    alert("回答保存に失敗しました");
+  try {
+    const res = await fetch(`${api}?${params.toString()}`);
+    const data = await res.json();
+
+    if (data.status === "OK") {
+      alert("回答を保存しました！");
+    } else {
+      alert("回答保存に失敗しました");
+    }
+  } catch (error) {
+    console.error("回答保存 API エラー:", error);
+    alert("回答保存サーバーとの通信に失敗しました");
   }
 }
 </script>
