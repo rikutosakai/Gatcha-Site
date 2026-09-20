@@ -133,7 +133,7 @@ verifyProblem();
 // ③ 問題HTMLを JSON で受信して表示
 // ------------------------------
 async function loadProblemHtml() {
-  const requestUrl = `${api}?mode=getProblem&tokenProblem=${encodeURIComponent(problemToken)}`;
+  const requestUrl = `${api}?mode=getProblem&formId=${encodeURIComponent(savedFormId)}&tokenProblem=${encodeURIComponent(problemToken)}`;
   const res = await fetch(requestUrl);
   const data = await res.json();
 
