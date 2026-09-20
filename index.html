@@ -9,7 +9,7 @@
   .active { display: block; }
   input { display: block; margin: 8px 0; padding: 8px; width: 100%; }
   button { padding: 12px 20px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  iframe { width: 100%; height: 600px; border: none; }
+  #problemArea img { max-width: 100%; }
 </style>
 </head>
 <body>
@@ -36,7 +36,7 @@
 <!-- ③ 問題閲覧画面 -->
 <div id="screen3" class="screen">
   <h2>問題</h2>
-  <iframe id="problemFrame"></iframe>
+  <div id="problemArea"></div>
   <button onclick="goToScreen4()">回答へ進む</button>
 </div>
 
@@ -111,9 +111,7 @@ async function verifyProblem() {
     verifiedProblem = true;
     problemToken = result;
 
-    // 問題画像を読み込む
-    const problemUrl = `${api}?mode=getProblem&id=${id}&pw=${pw}`;
-    document.getElementById("problemFrame").src = problemUrl;
+    await loadProblemHtml();  // iframe の代わりに fetch で読み込む
 
     goToScreen2();
   } else {
@@ -123,6 +121,17 @@ async function verifyProblem() {
 
 // ページ読み込み時に問題認証を実行
 verifyProblem();
+
+
+// ------------------------------
+// ③ 問題HTMLを fetch で読み込む（iframe を使わない）
+// ------------------------------
+async function loadProblemHtml() {
+  const url = `${api}?mode=getProblem&id=${savedFormId}&pw=${savedFormPw}`;
+  const res = await fetch(url);
+  const html = await res.text();
+  document.getElementById("problemArea").innerHTML = html;
+}
 
 
 // ------------------------------
@@ -150,7 +159,7 @@ async function verifyParticipant() {
 
 
 // ------------------------------
-// ③ 回答保存（Apps Script → Google Sheets）
+// ④ 回答保存（Apps Script → Google Sheets）
 // ------------------------------
 async function submitAnswers() {
   if (!verifiedProblem || !verifiedParticipant) {
