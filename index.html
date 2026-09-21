@@ -6,71 +6,101 @@
 
 <style>
   body {
-    font-family: "Roboto", "Noto Sans JP", sans-serif;
-    background: #f8f9fa;
-    padding: 20px;
+  font-family: "Roboto", "Noto Sans JP", sans-serif;
+  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  padding: 20px;
   }
 
+  /* カード（ガチャカプセル風） */
   .card {
     background: white;
     padding: 24px;
     margin: 20px auto;
-    border-radius: 12px;
+    border-radius: 20px;
     max-width: 720px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    border: 3px solid #ff6f61;
   }
 
+  /* タイトル */
   h2 {
-    font-size: 22px;
-    font-weight: 600;
-    color: #3c4043;
+    font-size: 24px;
+    font-weight: 700;
+    color: #ff4f4f;
     margin-bottom: 12px;
   }
 
+  /* 説明文 */
   p {
     color: #5f6368;
     margin-bottom: 16px;
+    font-size: 16px;
   }
 
+  /* 入力欄（カプセル風） */
   input {
     width: 100%;
     padding: 14px;
     margin: 10px 0 20px 0;
-    border: 1px solid #dadce0;
-    border-radius: 8px;
+    border: 2px solid #ff6f61;
+    border-radius: 50px;
     font-size: 16px;
     box-sizing: border-box;
+    background: #fff7f7;
   }
 
   input:focus {
     outline: none;
-    border-color: #4285F4;
-    box-shadow: 0 0 0 1px #4285F4;
+    border-color: #ff3b3b;
+    box-shadow: 0 0 0 2px #ffb3b3;
   }
 
+  /* ボタン（ガチャボタン風） */
   button {
-    background: #4285F4;
+    background: #ff4f4f;
     color: white;
     border: none;
     padding: 14px 24px;
-    font-size: 16px;
-    border-radius: 8px;
+    font-size: 18px;
+    border-radius: 50px;
     cursor: pointer;
     margin-top: 10px;
+    box-shadow: 0 4px 8px rgba(255,0,0,0.3);
+    transition: transform 0.1s ease;
   }
 
   button:hover {
-    background: #357ae8;
+    background: #ff2f2f;
+    transform: scale(1.05);
   }
 
+  /* 画面切り替え */
   .screen { display: none; }
   .active { display: block; }
 
+  /* 問題画像 */
   #questionArea img {
     max-width: 100%;
-    border-radius: 8px;
+    border-radius: 12px;
     margin-bottom: 20px;
+    border: 3px solid #ff6f61;
   }
+
+  /* ガチャローディングアニメーション */
+  #loadingSpinner {
+    width: 120px;
+    height: 120px;
+    margin: 20px auto;
+    border-radius: 50%;
+    border: 12px solid #ffd1d1;
+    border-top-color: #ff4f4f;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
 </style>
 </head>
 <body>
@@ -78,7 +108,9 @@
 <!-- ① 問題認証画面 -->
 <div id="screen1" class="screen active card">
   <h2>問題認証中…</h2>
-  <p>QRコードの情報を読み込んでいます。</p>
+  <div id="loadingSpinner"></div>
+  <p>ガチャを回しています…</p>
+
 </div>
 
 <!-- ② 参加者認証画面 -->
@@ -153,11 +185,7 @@ savedFormId = id;
 savedFormPw = pw;
 
 async function verifyQuestion() {
-  if (!api || !id || !pw) {
-    document.querySelector("#screen1 p").textContent =
-      "URLに api・id・pw のいずれかがありません。QRコードのリンクを確認してください。";
-    return;
-  }
+  document.getElementById("loadingSpinner").style.display = "block";
 
   try {
     const verifyUrl = `${api}?mode=verifyQuestion&id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`;
@@ -169,15 +197,21 @@ async function verifyQuestion() {
       questionToken = data.token;
 
       await loadQuestionHtml();
+
+      // ローディング非表示
+      document.getElementById("loadingSpinner").style.display = "none";
+
       goToScreen2();
     } else {
       alert("問題認証に失敗しました");
     }
   } catch (error) {
+    document.getElementById("loadingSpinner").style.display = "none";
     document.querySelector("#screen1 p").textContent =
       "問題認証に失敗しました。API URL、通信状態、CORS設定を確認してください。";
   }
 }
+
 
 verifyQuestion();
 
