@@ -96,7 +96,7 @@
 
 <!-- ③ 問題＋回答画面 -->
 <div id="screen3" class="screen card">
-  <h2>問題</h2>
+  <h2 id="problemNo">問題</h2>
   <p>空欄に当てはまる数字を入力してください。</p>
 
   <div id="problemArea"></div>
@@ -184,6 +184,7 @@ async function loadProblemHtml() {
   const data = await res.json();
 
   if (data.status === "OK") {
+    document.getElementById("problemNo").textContent = "問題No. " + id;
     document.getElementById("problemArea").innerHTML = data.html;
   } else {
     throw new Error("問題データの取得に失敗しました");
