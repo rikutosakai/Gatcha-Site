@@ -66,7 +66,7 @@
   .screen { display: none; }
   .active { display: block; }
 
-  #problemArea img {
+  #questionArea img {
     max-width: 100%;
     border-radius: 8px;
     margin-bottom: 20px;
@@ -96,10 +96,10 @@
 
 <!-- ③ 問題＋回答画面 -->
 <div id="screen3" class="screen card">
-  <h2 id="problemNo">問題</h2>
+  <h2 id="questionNo">問題</h2>
   <p>空欄に当てはまる数字を入力してください。</p>
 
-  <div id="problemArea"></div>
+  <div id="questionArea"></div>
 
   <button onclick="submitAnswers()">回答を送信する</button>
 </div>
@@ -108,7 +108,7 @@
 // ------------------------------
 // 認証状態と認証情報の保持
 // ------------------------------
-let verifiedProblem = false;
+let verifiedQuestion = false;
 let verifiedParticipant = false;
 
 let savedFormId = null;
@@ -116,7 +116,7 @@ let savedFormPw = null;
 let savedParticipantId = null;
 let savedNickname = null;
 
-let problemToken = null;
+let questionToken = null;
 let participantToken = null;
 
 
@@ -142,7 +142,7 @@ const pw  = url.searchParams.get("pw");
 savedFormId = id;
 savedFormPw = pw;
 
-async function verifyProblem() {
+async function verifyQuestion() {
   if (!api || !id || !pw) {
     document.querySelector("#screen1 p").textContent =
       "URLに api・id・pw のいずれかがありません。QRコードのリンクを確認してください。";
@@ -150,15 +150,15 @@ async function verifyProblem() {
   }
 
   try {
-    const verifyUrl = `${api}?mode=verifyProblem&id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`;
+    const verifyUrl = `${api}?mode=verifyQuestion&id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`;
     const res = await fetch(verifyUrl);
     const data = await res.json();
 
     if (data.status === "OK") {
-      verifiedProblem = true;
-      problemToken = data.token;
+      verifiedQuestion = true;
+      questionToken = data.token;
 
-      await loadProblemHtml();
+      await loadQuestionHtml();
       goToScreen2();
     } else {
       alert("問題認証に失敗しました");
@@ -169,23 +169,23 @@ async function verifyProblem() {
   }
 }
 
-verifyProblem();
+verifyQuestion();
 
 
 // ------------------------------
 // ③ 問題HTMLを JSON で受信して表示
 // ------------------------------
-async function loadProblemHtml() {
-  const requestUrl = `${api}?mode=getProblem` +
-    `&tokenProblem=${encodeURIComponent(problemToken)}` +
+async function loadQuestionHtml() {
+  const requestUrl = `${api}?mode=getQuestion` +
+    `&tokenQuestion=${encodeURIComponent(questionToken)}` +
     `&formId=${encodeURIComponent(savedFormId)}`;
 
   const res = await fetch(requestUrl);
   const data = await res.json();
 
   if (data.status === "OK") {
-    document.getElementById("problemNo").textContent = "問題No. " + id;
-    document.getElementById("problemArea").innerHTML = data.html;
+    document.getElementById("questionNo").textContent = "問題No. " + id;
+    document.getElementById("questionArea").innerHTML = data.html;
   } else {
     throw new Error("問題データの取得に失敗しました");
   }
@@ -224,7 +224,7 @@ async function verifyParticipant() {
 // ④ 回答保存
 // ------------------------------
 async function submitAnswers() {
-  if (!verifiedProblem || !verifiedParticipant) {
+  if (!verifiedQuestion || !verifiedParticipant) {
     alert("認証が完了していません");
     return;
   }
@@ -235,7 +235,7 @@ async function submitAnswers() {
     formPw: savedFormPw,
     pid: savedParticipantId,
     nick: savedNickname,
-    tokenProblem: problemToken,
+    tokenQuestion: questionToken,
     tokenParticipant: participantToken,
   });
 
