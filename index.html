@@ -33,18 +33,14 @@
   <button onclick="verifyParticipant()">次へ</button>
 </div>
 
-<!-- ③ 問題閲覧画面 -->
+<!-- ③ 問題＋回答画面（統合） -->
 <div id="screen3" class="screen">
-  <h2>問題</h2>
+  <h2>問題は2問あります。</h2>
+  <p>空欄に当てはまる数字を入力して、回答してください。</p>
+
   <div id="problemArea"></div>
-  <button onclick="goToScreen4()">回答へ進む</button>
-</div>
 
-<!-- ④ 回答画面 -->
-<div id="screen4" class="screen">
-  <h2>回答入力</h2>
-
-  <h3>問題 1</h3>
+  <h3>問題 1 の回答</h3>
   <input type="text" id="q1_1" placeholder="回答1">
   <input type="text" id="q1_2" placeholder="回答2">
   <input type="text" id="q1_3" placeholder="回答3">
@@ -52,7 +48,7 @@
   <input type="text" id="q1_5" placeholder="回答5">
   <input type="text" id="q1_6" placeholder="回答6">
 
-  <h3>問題 2</h3>
+  <h3>問題 2 の回答</h3>
   <input type="text" id="q2_1" placeholder="回答1">
   <input type="text" id="q2_2" placeholder="回答2">
   <input type="text" id="q2_3" placeholder="回答3">
@@ -88,7 +84,6 @@ function showScreen(n) {
 }
 function goToScreen2() { showScreen(2); }
 function goToScreen3() { showScreen(3); }
-function goToScreen4() { showScreen(4); }
 
 
 // ------------------------------
@@ -106,26 +101,22 @@ async function verifyProblem() {
   try {
     const verifyUrl = `${api}?mode=verifyProblem&id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`;
     const res = await fetch(verifyUrl);
-    const data = await res.json();   // ← JSON に変更
+    const data = await res.json();
 
     if (data.status === "OK") {
       verifiedProblem = true;
       problemToken = data.token;
 
-      await loadProblemHtml();  // トークン付き getProblem 呼び出し
-
+      await loadProblemHtml();
       goToScreen2();
     } else {
       alert("問題認証に失敗しました");
     }
   } catch (error) {
     console.error("問題認証 API エラー:", error);
-    document.querySelector("#screen1 h2").textContent = "問題認証に失敗しました";
-    document.querySelector("#screen1 p").textContent = "認証サーバーが JSON を返しませんでした。管理者に連絡してください。";
   }
 }
 
-// ページ読み込み時に問題認証を実行
 verifyProblem();
 
 
@@ -133,7 +124,7 @@ verifyProblem();
 // ③ 問題HTMLを JSON で受信して表示
 // ------------------------------
 async function loadProblemHtml() {
-  const requestUrl = `${api}?mode=getProblem&formId=${encodeURIComponent(savedFormId)}&tokenProblem=${encodeURIComponent(problemToken)}`;
+  const requestUrl = `${api}?mode=getProblem&tokenProblem=${encodeURIComponent(problemToken)}`;
   const res = await fetch(requestUrl);
   const data = await res.json();
 
@@ -169,7 +160,6 @@ async function verifyParticipant() {
     }
   } catch (error) {
     console.error("参加者認証 API エラー:", error);
-    alert("参加者認証サーバーとの通信に失敗しました");
   }
 }
 
@@ -193,7 +183,7 @@ async function submitAnswers() {
     tokenParticipant: participantToken
   });
 
-  for (const input of document.querySelectorAll("#screen4 input")) {
+  for (const input of document.querySelectorAll("#screen3 input")) {
     params.set(input.id, input.value);
   }
 
@@ -208,7 +198,6 @@ async function submitAnswers() {
     }
   } catch (error) {
     console.error("回答保存 API エラー:", error);
-    alert("回答保存サーバーとの通信に失敗しました");
   }
 }
 </script>
