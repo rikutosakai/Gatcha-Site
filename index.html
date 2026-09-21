@@ -104,6 +104,15 @@
   <button onclick="submitAnswers()">回答を送信する</button>
 </div>
 
+<!-- ④ 送信完了画面 -->
+<div id="screen4" class="screen card">
+  <h2>送信が完了しました</h2>
+  <p>回答を受け付けました。ありがとうございました。</p>
+
+  <p id="resultText" style="font-size:18px; font-weight:500; color:#3c4043;"></p>
+</div>
+
+
 <script>
 // ------------------------------
 // 認証状態と認証情報の保持
@@ -129,6 +138,7 @@ function showScreen(n) {
 }
 function goToScreen2() { showScreen(2); }
 function goToScreen3() { showScreen(3); }
+function goToScreen4() { showScreen(4); }
 
 
 // ------------------------------
@@ -249,10 +259,14 @@ async function submitAnswers() {
 
     if (data.status === "OK") {
       const result = data.result;
-      alert(
-        `回答を保存しました！\n` +
-        `獲得ポイント: ${result.earnedPoints} / ${result.totalPoints}`
-      );
+
+      // ★ 送信完了画面に結果を表示
+      document.getElementById("resultText").textContent =
+        `獲得ポイント: ${result.earnedPoints} / ${result.totalPoints}`;
+
+      // ★ 画面遷移
+      goToScreen4();
+
     } else {
       alert(data.message || "回答保存に失敗しました");
     }
@@ -260,6 +274,7 @@ async function submitAnswers() {
     alert("回答保存中にエラーが発生しました");
   }
 }
+
 
 </script>
 
