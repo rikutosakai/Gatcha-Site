@@ -124,8 +124,13 @@ verifyProblem();
 // ③ 問題HTMLを JSON で受信して表示
 // ------------------------------
 async function loadProblemHtml() {
-  const requestUrl = `${api}?mode=getProblem&tokenProblem=${encodeURIComponent(problemToken)}`;
+  const requestUrl = `${api}?mode=getProblem` +
+    `&tokenProblem=${encodeURIComponent(problemToken)}` +
+    `&formId=${encodeURIComponent(savedFormId)}`;
   const res = await fetch(requestUrl);
+  if (!res.ok) {
+    throw new Error(`問題データ取得 HTTP エラー: ${res.status}`);
+  }
   const data = await res.json();
 
   if (data.status === "OK") {
