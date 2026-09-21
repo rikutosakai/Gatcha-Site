@@ -7,11 +7,11 @@
 <style>
   body {
   font-family: "Roboto", "Noto Sans JP", sans-serif;
-  background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+  background: linear-gradient(135deg, #a1c4fd, #c2e9fb); /* 青系グラデーション */
   padding: 20px;
   }
 
-  /* カード（ガチャカプセル風） */
+  /* カード（青カプセル風） */
   .card {
     background: white;
     padding: 24px;
@@ -19,45 +19,45 @@
     border-radius: 20px;
     max-width: 720px;
     box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    border: 3px solid #ff6f61;
+    border: 3px solid #4f8cff; /* 青枠 */
   }
 
   /* タイトル */
   h2 {
     font-size: 24px;
     font-weight: 700;
-    color: #ff4f4f;
+    color: #2f6bff; /* 青タイトル */
     margin-bottom: 12px;
   }
 
   /* 説明文 */
   p {
-    color: #5f6368;
+    color: #4a4e57;
     margin-bottom: 16px;
     font-size: 16px;
   }
 
-  /* 入力欄（カプセル風） */
+  /* 入力欄（青カプセル風） */
   input {
     width: 100%;
     padding: 14px;
     margin: 10px 0 20px 0;
-    border: 2px solid #ff6f61;
+    border: 2px solid #4f8cff;
     border-radius: 50px;
     font-size: 16px;
     box-sizing: border-box;
-    background: #fff7f7;
+    background: #f0f6ff; /* 青系の薄い背景 */
   }
 
   input:focus {
     outline: none;
-    border-color: #ff3b3b;
-    box-shadow: 0 0 0 2px #ffb3b3;
+    border-color: #2f6bff;
+    box-shadow: 0 0 0 2px #bcd3ff;
   }
 
-  /* ボタン（ガチャボタン風） */
+  /* ボタン（青ガチャボタン風） */
   button {
-    background: #ff4f4f;
+    background: #2f6bff;
     color: white;
     border: none;
     padding: 14px 24px;
@@ -65,12 +65,12 @@
     border-radius: 50px;
     cursor: pointer;
     margin-top: 10px;
-    box-shadow: 0 4px 8px rgba(255,0,0,0.3);
+    box-shadow: 0 4px 8px rgba(0,80,255,0.3);
     transition: transform 0.1s ease;
   }
 
   button:hover {
-    background: #ff2f2f;
+    background: #1f5aff;
     transform: scale(1.05);
   }
 
@@ -78,28 +78,29 @@
   .screen { display: none; }
   .active { display: block; }
 
-  /* 問題画像 */
+  /* 問題画像（青枠） */
   #questionArea img {
     max-width: 100%;
     border-radius: 12px;
     margin-bottom: 20px;
-    border: 3px solid #ff6f61;
+    border: 3px solid #4f8cff;
   }
 
-  /* ガチャローディングアニメーション */
+  /* ガチャローディングアニメーション（青） */
   #loadingSpinner {
     width: 120px;
     height: 120px;
     margin: 20px auto;
     border-radius: 50%;
-    border: 12px solid #ffd1d1;
-    border-top-color: #ff4f4f;
+    border: 12px solid #d6e6ff;
+    border-top-color: #2f6bff;
     animation: spin 1s linear infinite;
   }
 
   @keyframes spin {
     to { transform: rotate(360deg); }
   }
+
 
 </style>
 </head>
