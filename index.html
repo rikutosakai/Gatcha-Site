@@ -197,7 +197,14 @@ async function submitAnswers() {
   } catch (error) {
     console.error("回答保存 API エラー:", error);
   }
+  if (data.status === "OK") {
+  const result = data.result;
+  alert(`採点結果: ${result.correct} / ${result.total}`);
+  } else {
+    alert(data.message || "回答保存に失敗しました");
+  }
 }
+
 </script>
 
 </body>
