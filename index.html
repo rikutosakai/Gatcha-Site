@@ -178,7 +178,7 @@ async function submitAnswers() {
     pid: savedParticipantId,
     nick: savedNickname,
     tokenProblem: problemToken,
-    tokenParticipant: participantToken
+    tokenParticipant: participantToken,
   });
 
   for (const input of document.querySelectorAll("#screen3 input")) {
@@ -190,18 +190,17 @@ async function submitAnswers() {
     const data = await res.json();
 
     if (data.status === "OK") {
-      alert("回答を保存しました！");
+      const result = data.result;
+
+      alert(
+        `回答を保存しました！\n正解数: ${result.correct} / ${result.total}`,
+      );
     } else {
-      alert("回答保存に失敗しました");
+      alert(data.message || "回答保存に失敗しました");
     }
   } catch (error) {
     console.error("回答保存 API エラー:", error);
-  }
-  if (data.status === "OK") {
-  const result = data.result;
-  alert(`採点結果: ${result.correct} / ${result.total}`);
-  } else {
-    alert(data.message || "回答保存に失敗しました");
+    alert("回答保存中にエラーが発生しました");
   }
 }
 
