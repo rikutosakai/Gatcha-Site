@@ -3,25 +3,86 @@
 <head>
 <meta charset="UTF-8">
 <title>ガチャ問題</title>
+
 <style>
-  body { font-family: sans-serif; padding: 20px; }
+  body {
+    font-family: "Roboto", "Noto Sans JP", sans-serif;
+    background: #f8f9fa;
+    padding: 20px;
+  }
+
+  .card {
+    background: white;
+    padding: 24px;
+    margin: 20px auto;
+    border-radius: 12px;
+    max-width: 720px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+
+  h2 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #3c4043;
+    margin-bottom: 12px;
+  }
+
+  p {
+    color: #5f6368;
+    margin-bottom: 16px;
+  }
+
+  input {
+    width: 100%;
+    padding: 14px;
+    margin: 10px 0 20px 0;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    font-size: 16px;
+    box-sizing: border-box;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: #4285F4;
+    box-shadow: 0 0 0 1px #4285F4;
+  }
+
+  button {
+    background: #4285F4;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  button:hover {
+    background: #357ae8;
+  }
+
   .screen { display: none; }
   .active { display: block; }
-  input { display: block; margin: 8px 0; padding: 8px; width: 100%; }
-  button { padding: 12px 20px; font-size: 18px; background: #4285F4; color: white; border: none; border-radius: 6px; cursor: pointer; }
-  #problemArea img { max-width: 100%; }
+
+  #problemArea img {
+    max-width: 100%;
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
 </style>
 </head>
 <body>
 
 <!-- ① 問題認証画面 -->
-<div id="screen1" class="screen active">
+<div id="screen1" class="screen active card">
   <h2>問題認証中…</h2>
   <p>QRコードの情報を読み込んでいます。</p>
 </div>
 
 <!-- ② 参加者認証画面 -->
-<div id="screen2" class="screen">
+<div id="screen2" class="screen card">
   <h2>参加者認証</h2>
 
   <label>参加者ID</label>
@@ -33,10 +94,10 @@
   <button onclick="verifyParticipant()">次へ</button>
 </div>
 
-<!-- ③ 問題＋回答画面（統合） -->
-<div id="screen3" class="screen">
-  <h2>問題は2問あります。</h2>
-  <p>空欄に当てはまる数字を入力して、回答してください。</p>
+<!-- ③ 問題＋回答画面 -->
+<div id="screen3" class="screen card">
+  <h2>問題</h2>
+  <p>空欄に当てはまる数字を入力してください。</p>
 
   <div id="problemArea"></div>
 
@@ -85,7 +146,6 @@ async function verifyProblem() {
   if (!api || !id || !pw) {
     document.querySelector("#screen1 p").textContent =
       "URLに api・id・pw のいずれかがありません。QRコードのリンクを確認してください。";
-    console.error("必須のURLパラメータが不足しています", { api, id, pw });
     return;
   }
 
@@ -104,7 +164,6 @@ async function verifyProblem() {
       alert("問題認証に失敗しました");
     }
   } catch (error) {
-    console.error("問題認証 API エラー:", error);
     document.querySelector("#screen1 p").textContent =
       "問題認証に失敗しました。API URL、通信状態、CORS設定を確認してください。";
   }
@@ -120,10 +179,8 @@ async function loadProblemHtml() {
   const requestUrl = `${api}?mode=getProblem` +
     `&tokenProblem=${encodeURIComponent(problemToken)}` +
     `&formId=${encodeURIComponent(savedFormId)}`;
+
   const res = await fetch(requestUrl);
-  if (!res.ok) {
-    throw new Error(`問題データ取得 HTTP エラー: ${res.status}`);
-  }
   const data = await res.json();
 
   if (data.status === "OK") {
@@ -163,7 +220,7 @@ async function verifyParticipant() {
 
 
 // ------------------------------
-// ④ 回答保存（Apps Script → Google Sheets）
+// ④ 回答保存
 // ------------------------------
 async function submitAnswers() {
   if (!verifiedProblem || !verifiedParticipant) {
@@ -190,18 +247,15 @@ async function submitAnswers() {
     const data = await res.json();
 
     if (data.status === "OK") {
-  const result = data.result;
-
-  alert(
-      `回答を保存しました！\n` +
-      `正解数: ${result.correct} / ${result.total}\n` +
-      `獲得ポイント: ${result.earnedPoints} / ${result.totalPoints}`,
-    );
-  } else {
-    alert(data.message || "回答保存に失敗しました");
-  }
+      const result = data.result;
+      alert(
+        `回答を保存しました！\n` +
+        `獲得ポイント: ${result.earnedPoints} / ${result.totalPoints}`
+      );
+    } else {
+      alert(data.message || "回答保存に失敗しました");
+    }
   } catch (error) {
-    console.error("回答保存 API エラー:", error);
     alert("回答保存中にエラーが発生しました");
   }
 }
