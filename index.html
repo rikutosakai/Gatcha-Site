@@ -40,22 +40,6 @@
 
   <div id="problemArea"></div>
 
-  <h3>問題 1 の回答</h3>
-  <input type="text" id="q1_1" placeholder="回答1">
-  <input type="text" id="q1_2" placeholder="回答2">
-  <input type="text" id="q1_3" placeholder="回答3">
-  <input type="text" id="q1_4" placeholder="回答4">
-  <input type="text" id="q1_5" placeholder="回答5">
-  <input type="text" id="q1_6" placeholder="回答6">
-
-  <h3>問題 2 の回答</h3>
-  <input type="text" id="q2_1" placeholder="回答1">
-  <input type="text" id="q2_2" placeholder="回答2">
-  <input type="text" id="q2_3" placeholder="回答3">
-  <input type="text" id="q2_4" placeholder="回答4">
-  <input type="text" id="q2_5" placeholder="回答5">
-  <input type="text" id="q2_6" placeholder="回答6">
-
   <button onclick="submitAnswers()">回答を送信する</button>
 </div>
 
@@ -98,6 +82,13 @@ savedFormId = id;
 savedFormPw = pw;
 
 async function verifyProblem() {
+  if (!api || !id || !pw) {
+    document.querySelector("#screen1 p").textContent =
+      "URLに api・id・pw のいずれかがありません。QRコードのリンクを確認してください。";
+    console.error("必須のURLパラメータが不足しています", { api, id, pw });
+    return;
+  }
+
   try {
     const verifyUrl = `${api}?mode=verifyProblem&id=${encodeURIComponent(id)}&pw=${encodeURIComponent(pw)}`;
     const res = await fetch(verifyUrl);
@@ -114,6 +105,8 @@ async function verifyProblem() {
     }
   } catch (error) {
     console.error("問題認証 API エラー:", error);
+    document.querySelector("#screen1 p").textContent =
+      "問題認証に失敗しました。API URL、通信状態、CORS設定を確認してください。";
   }
 }
 
