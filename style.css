@@ -1,0 +1,99 @@
+body {
+  font-family: "Roboto", "Noto Sans JP", sans-serif;
+  background: linear-gradient(135deg, #649fff, #c2e9fb);
+  background-repeat: no-repeat;   /* ← グラデーションの繰り返しを防ぐ */
+  background-attachment: fixed;   /* ← スクロールしても固定 */
+  background-size: cover;         /* ← 画面全体を1回のグラデーションで覆う */
+  padding: 20px;
+}
+
+
+/* カード（青カプセル風） */
+.card {
+  background: white;
+  padding: 24px;
+  margin: 20px auto;
+  border-radius: 20px;
+  max-width: 720px;
+  box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+  border: 3px solid #4f8cff;
+}
+
+/* タイトル */
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #2f6bff;
+  margin-bottom: 12px;
+}
+
+/* 説明文 */
+p {
+  color: #000000;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+/* 入力欄（青カプセル風） */
+input {
+  width: 100%;
+  padding: 14px;
+  margin: 10px 0 20px 0;
+  border: 2px solid #4f8cff;
+  border-radius: 50px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background: #f0f6ff;
+}
+
+input:focus {
+  outline: none;
+  border-color: #2f6bff;
+  box-shadow: 0 0 0 2px #bcd3ff;
+}
+
+/* ボタン（青ガチャボタン風） */
+button {
+  background: #2f6bff;
+  color: white;
+  border: none;
+  padding: 14px 24px;
+  font-size: 18px;
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0,80,255,0.3);
+  transition: transform 0.1s ease;
+}
+
+button:hover {
+  background: #1f5aff;
+  transform: scale(1.05);
+}
+
+/* 画面切り替え */
+.screen { display: none; }
+.active { display: block; }
+
+/* 問題画像（青枠） */
+#questionArea img {
+  max-width: 100%;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 3px solid #4f8cff;
+}
+
+/* ガチャローディングアニメーション（青） */
+#loadingSpinner {
+  width: 120px;
+  height: 120px;
+  margin: 20px auto;
+  border-radius: 50%;
+  border: 12px solid #d6e6ff;
+  border-top-color: #2f6bff;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
