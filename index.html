@@ -190,14 +190,16 @@ async function submitAnswers() {
     const data = await res.json();
 
     if (data.status === "OK") {
-      const result = data.result;
+  const result = data.result;
 
-      alert(
-        `回答を保存しました！\n正解数: ${result.correct} / ${result.total}`,
-      );
-    } else {
-      alert(data.message || "回答保存に失敗しました");
-    }
+  alert(
+      `回答を保存しました！\n` +
+      `正解数: ${result.correct} / ${result.total}\n` +
+      `獲得ポイント: ${result.earnedPoints} / ${result.totalPoints}`,
+    );
+  } else {
+    alert(data.message || "回答保存に失敗しました");
+  }
   } catch (error) {
     console.error("回答保存 API エラー:", error);
     alert("回答保存中にエラーが発生しました");
